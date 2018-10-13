@@ -45,15 +45,16 @@ function customerPurchase() {
         .then(customerResponse => {
             connection.query('SELECT product_name, price, stock_quantity FROM product WHERE item_id =' + customerResponse.itemID, function (error, results) {
                 if (error) throw error;
-                console.log('You selected: ' + results[0].product_name);
+                console.log('\nYou selected: ' + results[0].product_name);
                 if (customerResponse.itemQuantity > results[0].stock_quantity) {
                     console.log("We don't have enough " + results[0].product_name + "'s to fulfill your request!\nWe only have " + results[0].stock_quantity + " left.")
-                    connection.end();
+                    start();
+                } else {
+                    updateProduct((results[0].stock_quantity - customerResponse.itemQuantity), customerResponse.itemID)
+                    console.log(customerResponse.itemQuantity + " " + results[0].product_name + "'s added to cart!");
+                    console.log("The total cost of this purchase is: $" + (results[0].price*customerResponse.itemQuantity));
+                    start();
                 }
-                updateProduct((results[0].stock_quantity - customerResponse.itemQuantity), customerResponse.itemID)
-                console.log(customerResponse.itemQuantity + " " + results[0].product_name + "'s added to cart!");
-                console.log("The total cost of this purchase is: $" + (results[0].price*customerResponse.itemQuantity));
-                start();
             })
         });
 }
